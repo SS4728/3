@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>팥빙수 구매자 제비뽑기 이벤트</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --accent: #ff9800;
+            --win-color: #ff5722;
+            --lose-color: #78909c;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: var(--container-bg);
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 400px; 
+        }
+
+        h1, .subtitle { 
+            font-size: 1.8rem; 
+            color: #333; 
+            margin: 0;
+            padding: 5px 0;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        /* 카드 배치를 위한 그리드 시스템 */
+        .card-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .card-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        /* 3D 카드 스타일링 */
+        .card {
+            width: 75px;
+            height: 110px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* 클릭해서 flipped 클래스가 붙으면 뒤집힘 */
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            color: white;
+        }
+
+        /* 카드 앞면 (숨겨진 상태) */
+        .card-front {
+            background: linear-gradient(135deg, #ffb74d, var(--accent));
+            font-size: 1.5rem;
+            border: 2px white solid;
+            box-sizing: border-box;
+        }
+
+        /* 카드 뒷면 (결과 공개 상태) */
+        .card-back {
+            transform: rotateY(180deg);
+            font-size: 1.1rem;
+        }
+
+        .card-back.win { background: var(--win-color); }
+        .card-back.lose { background: var(--lose-color); }
+
+        .card span {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+        }
+
+        .btn-reset {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .btn-reset:hover { background: #1e88e5; transform: translateY(-1px); }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #444;
+            font-size: 0.95rem;
+        }
+
+        .stats b { font-size: 1.1rem; }
+
+        .history {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            max-height: 100px;
+            overflow-y: auto;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🍧 팥빙수 구매자 추첨 🍧</h1>
+    <div class="subtitle">제비 뽑기! (당첨3 / 꽝5)</div>
+
+    <div class="card-zone">
+        <div class="card-row">
+            <div class="card" id="card-0" onclick="revealCard(0)">
+                <div class="card-inner">
+                    <div class="card-front">?</div>
+                    <div class="card-back"></div>
+                </div>
+            </div>
+            <div class="card" id="card-1" onclick="revealCard(1)">
+                <div class="card-inner">
+                    <div class="card-front">?</div>
+                    <div class="card-back"></div>
+                </div>
+            </div>
+            <div class="card" id="card-2" onclick="revealCard(2)">
+                <div class="card-inner">
+                    <div class="card-front">?</div>
+                    <div class="card-back"></div>
+                </div>
+            </div>
+            <div class="card" id="card-3" onclick="revealCard(3)">
+                <div class="card-inner">
+                    <div class="card-front">?</div>
+                    <div class="card-back"></div>
+                </div>
+            </div>
+        </div>
+        <div class="card-row">
+            <div class="card" id="card-4" onclick="revealCard(4)">
+                <div class="card-inner">
+                    <div class="card-front">?</div>
+                    <div class="card-back"></div>
+                </div>
+            </div>
+            <div class="card" id="card-5" onclick="revealCard(5)">
+                <div class="card-inner">
+                    <div class="card-front">?</div>
+                    <div class="card-back"></div>
+                </div>
+            </div>
+            <div class="card" id="card-6" onclick="revealCard(6)">
+                <div class="card-inner">
+                    <div class="card-front">?</div>
+                    <div class="card-back"></div>
+                </div>
+            </div>
+            <div class="card" id="card-7" onclick="revealCard(7)">
+                <div class="card-inner">
+                    <div class="card-front">?</div>
+                    <div class="card-back"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-reset" onclick="initGame()">🔄 새 게임 (카드 다시 섞기)</button>
+
+    <div class="stats">
+        <div>당첨 획득: <b id="win-count" style="color: var(--win-color);">0</b></div>
+        <div>꽝 획득: <b id="lose-count" style="color: var(--lose-color);">0</b></div>
+        <div>남은 카드: <b id="remain-count" style="color: #2196f3;">8</b></div>
+    </div>
+
+    <div class="history" id="historyList">
+        추첨 기록이 여기에 표시됩니다.
+    </div>
+</div>
+
+<script>
+    const masterPool = ['당첨', '당첨', '당첨', '꽝', '꽝', '꽝', '꽝', '꽝'];
+    let shuffledPool = [];
+    let cardFlipped = []; 
+
+    let winCount = 0;
+    let loseCount = 0;
+    let remainCount = 8;
+
+    // 효과음 볼륨 및 주파수 대역 대폭 증폭 수정본
+    function playFlipSound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            // 'triangle' 타입을 유지하되 귀에 더 잘 들리도록 주파수 스타트 지점을 올렸습니다.
+            osc.type = 'triangle'; 
+            
+            // 주파수 도약 범위를 넓혀 팝업 느낌을 명확하게 인지되도록 수정
+            osc.frequency.setValueAtTime(350, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(700, ctx.currentTime + 0.06);
+            osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.2);
+            
+            // ★ 볼륨 설정을 최대치(1.0)로 증폭하고 전체 지속시간을 0.2초로 늘려 음량을 키웠습니다.
+            gain.gain.setValueAtTime(1.0, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+        } catch (e) {
+            console.error("이 브라우저에서는 오디오 엔진을 지원하지 않습니다.", e);
+        }
+    }
+
+    function initGame() {
+        shuffledPool = [...masterPool].sort(() => Math.random() - 0.5);
+        cardFlipped = [false, false, false, false, false, false, false, false];
+        remainCount = 8;
+        document.getElementById('remain-count').innerText = remainCount;
+
+        for (let i = 0; i < 8; i++) {
+            const card = document.getElementById(`card-${i}`);
+            card.classList.remove('flipped');
+            
+            const backFace = card.querySelector('.card-back');
+            backFace.className = 'card-back'; 
+            
+            if (shuffledPool[i] === '당첨') {
+                backFace.innerHTML = '<span>🎉</span>당첨';
+                backFace.classList.add('win');
+            } else {
+                backFace.innerHTML = '<span>💨</span>꽝';
+                backFace.classList.add('lose');
+            }
+        }
+        updateHistory("🔄 카드를 새롭게 섞었습니다. 원하는 카드를 고르세요!");
+    }
+
+    function revealCard(index) {
+        if (cardFlipped[index]) return;
+
+        cardFlipped[index] = true;
+        const card = document.getElementById(`card-${index}`);
+        card.classList.add('flipped');
+
+        playFlipSound();
+
+        const result = shuffledPool[index];
+
+        if (result === '당첨') {
+            winCount++;
+            document.getElementById('win-count').innerText = winCount;
+            updateHistory(`${index + 1}번 카드 결과: 🎉 당첨!`);
+        } else {
+            loseCount++;
+            document.getElementById('lose-count').innerText = loseCount;
+            updateHistory(`${index + 1}번 카드 결과: 💨 꽝...`);
+        }
+
+        remainCount--;
+        document.getElementById('remain-count').innerText = remainCount;
+    }
+
+    function updateHistory(result) {
+        const list = document.getElementById('historyList');
+        if(list.innerText.includes("추첨 기록이")) list.innerText = "";
+        const entry = document.createElement('div');
+        entry.innerText = `[${new Date().toLocaleTimeString()}] ${result}`;
+        list.prepend(entry);
+    }
+
+    window.onload = initGame;
+</script>
+
+</body>
+</html>
